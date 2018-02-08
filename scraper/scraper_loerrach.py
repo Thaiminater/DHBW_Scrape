@@ -15,14 +15,18 @@ soup = BeautifulSoup(response)
 def has_colspan(tag):
     return tag.has_attr('colspan')
 
-for company in soup.find_all("div", class_="company_set",limit=2):
+for company in soup.find_all("div", class_="company_set",limit=5):
 	#print (company.prettify())
-	for adr in company.find_all("td", class_="company_addr"):
+	for addr in company.find_all("td", class_="company_addr"):
 		#print (td.prettify())
-		for string in adr.h3.stripped_strings:
-			print ('Firmenname: ' + string)
-		for string in adr.p.stripped_strings:
-			print ('Firmenadresse: ' + string)
+		for namestring in addr.h3.stripped_strings:
+			print (namestring)
+		addresslist = []
+		for addrstring in addr.p.stripped_strings:
+			addresslist.append(addrstring)
+			addresslist.append("\n")
+		address = "".join(addresslist)
+		print address
 	for note in company.find_all("td", class_="company_note"):
 		#print (td.prettify())
 		for string in note.p.stripped_strings:
@@ -52,5 +56,6 @@ for company in soup.find_all("div", class_="company_set",limit=2):
 	for num in company.find_all("td", has_colspan, class_="company_contact"):
 		if num.p.string != None:
 			print num.p.string
+	print ("\n")
 		
 			
