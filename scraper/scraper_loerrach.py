@@ -5,6 +5,7 @@ import sys
 import json
 import time
 import xlsxwriter
+import pdb
 
 workbook = xlsxwriter.Workbook('loerrach.xlsx')
 ws = workbook.add_worksheet()
@@ -17,32 +18,43 @@ soup = BeautifulSoup(response)
 
 def has_colspan(tag):
     return tag.has_attr('colspan')
-ws.write(0,0,'Firmenname')
+ws.set_row(0, 24)
 ws.set_column(0,0,35)
+ws.set_column(1,2,40)
+ws.set_column(3,3,40)
+ws.set_column(4,4,22)
+ws.set_column(5,5,20)
+ws.set_column(6,6,3)
+ws.set_column(7,7,17)
+
+ws.write(0,0,'Firmenname')
 ws.write(0,1,'Adresse')
-ws.set_column(1,20,40)
-ws.write(0,2,'Kontaktperson')
-ws.write(0,3,'Kontaktemail')
-row = 1
+ws.write(0,2,'Bemerkung')
+ws.write(0,3,'Website mit Infos')
+ws.write(0,4,'Kontaktperson')
+ws.write(0,5,'Kontaktemail')
+ws.write(0,6,'Homepage')
+ws.write(0,7,'Telefonnummer')
+row = 0
 col = 0
-for company in soup.find_all("div", class_="company_set",limit=3):
-	ws.set_row(row, 20)
+for company in soup.find_all("div", class_="company_set"):
+	ws.set_row(row, 50)
 	#print (company.prettify())
 	for addr in company.find_all("td", class_="company_addr"):
 		#print (td.prettify())
+		namelist = []
 		for namestring in addr.h3.stripped_strings:
-			print namestring
-			ws.write(row,col,namestring)
-			col += 1
+			namelist.append(namestring)
+			namelist.append(" ")
+		name = "".join(namelist)
+		ws.write(row,0,name)
 		addresslist = []
 		for addrstring in addr.p.stripped_strings:
 			addresslist.append(addrstring)
 			addresslist.append(" ")
 		address = "".join(addresslist)
 		print address
-		if address != None:
-			ws.write(row,col,address)
-			col += 1
+		ws.write(row,1,address)
 	
 	for note in company.find_all("td", class_="company_note"):
 		#print (td.prettify())
@@ -54,46 +66,46 @@ for company in soup.find_all("div", class_="company_set",limit=3):
 				notelist.append(b_string)
 				#ws.write(row,col,b_string)
 			#print ('new string')
-		notestr = " \n".join(notelist)
-		ws.write(row,col,notestr)
+		notestr = "".join(notelist)
+		ws.write(row,2,notestr)
 		print notestr
-		col += 1
+		linklist = []
 		for link in note.p.find_all('a'):
 			href = link.get('href')
 			if re.search("www", href) != None:
-				ws.write(row,col,href)
-			col += 1
+				linklist.append(href)
+				linklist.append(" ")
+			linkstr = "".join(linklist)
+			ws.write(row,3,linkstr)
 	for cnt in company.find_all("td", class_="company_contact"):
 		for cnt_name in cnt.find_all("h5"):
 			name = unicode(cnt_name)
 			name = name.replace('<h5>','')
 			name = name.replace('</h5>','')
 			print name
-			ws.write(row,col,name)
-			col += 1
+			ws.write(row,4,name)
 		#for string in cnt.h5.strings:
 		#	print ('Kontaktname: ' + string)
+		#pdb.set_trace()
 		for link in cnt.find_all("a"):
 			if re.search("document.write",link.text) != None :
-				b_string = str(link.text)
+				b_string = unicode(link.text)
 				b_string = b_string.replace('document.write(\'&#64;\');','')
-				ws.write(row,col,b_string)
+				ws.write(row,5,b_string)
 				print b_string
-				col += 1
 			link = link.get('href')
 			if re.search("www", link) != None :
-				ws.write_url(row,col,link,string='HP')
+				ws.write_url(row,6,link,string='HP')
 				print link
-			col += 1
 
 	for num in company.find_all("td", has_colspan, class_="company_contact"):
 		if num.p.string != None:
-			ws.write(row,col,num.p.string)
+			ws.write(row,7,num.p.string)
 			print num.p.string
 
 	print ("\n")
 	row += 1
-	col = 0
+ws.set_row(0, 19)
 workbook.close()
 		
 			
