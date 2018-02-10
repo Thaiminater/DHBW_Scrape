@@ -24,8 +24,9 @@ ws.set_column(1,2,40)
 ws.set_column(3,3,40)
 ws.set_column(4,4,22)
 ws.set_column(5,5,20)
-ws.set_column(6,6,3)
+ws.set_column(6,6,40)
 ws.set_column(7,7,17)
+ws.set_column(8,8,25)
 
 ws.write(0,0,'Firmenname')
 ws.write(0,1,'Adresse')
@@ -95,7 +96,7 @@ for company in soup.find_all("div", class_="company_set"):
 				print b_string
 			link = link.get('href')
 			if re.search("www", link) != None :
-				ws.write_url(row,6,link,string='HP')
+				ws.write_url(row,6,link)
 				print link
 
 	for num in company.find_all("td", has_colspan, class_="company_contact"):
@@ -103,6 +104,9 @@ for company in soup.find_all("div", class_="company_set"):
 			ws.write(row,7,num.p.string)
 			print num.p.string
 
+	for state in company.find_all("td", has_colspan, class_="company_tl"):
+		statestr = state.img['title']
+		ws.write(row,8,statestr)
 	print ("\n")
 	row += 1
 ws.set_row(0, 19)
