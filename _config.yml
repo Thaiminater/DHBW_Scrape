@@ -1,0 +1,20 @@
+# Site settings
+title: Thomas Schühly
+description: My Portfolio
+baseurl: "/" 
+url: "thaiminater.github.io" # 
+
+# User settings
+username: Thomas Schühly
+user_description: Hello on my GitHub homepage. Here I show you my projects and my expertise.
+user_title: 
+email: thomas.schuehly@outlook.com
+twitter_username: 
+github_username:  https://github.com/Thaiminater
+gplus_username:  
+
+# Google-analytics
+google-analytics:
+  id: ""
+
+exclude: ['package.json', 'src' , 'node_modules']
