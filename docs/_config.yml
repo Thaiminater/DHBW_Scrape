@@ -1,3 +1,4 @@
+encoding: UTF-8
 # Site settings
 title: Thomas Schühly
 description: My Portfolio
@@ -13,4 +14,3 @@ google-analytics:
   id: ""
 
 exclude: ['package.json', 'src' , 'node_modules']
-encoding: UTF-8
