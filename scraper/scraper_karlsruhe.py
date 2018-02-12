@@ -12,15 +12,17 @@ ws = workbook.add_worksheet()
 dryscrape.start_xvfb()									# Start dryscrape session
 session = dryscrape.Session()
 
-session.visit("https://www.karlsruhe.dhbw.de/duale-partner/liste-der-dualen-partner.html?tx_dhbwenterprise20_pi2%5Bpage%5D=1&tx_dhbwenterprise20_pi2%5Baction%5D=indexSearch&tx_dhbwenterprise20_pi2%5Bcontroller%5D=Job&cHash=aecf0bcd6b534bcd6d4a99e1519e280f#tx_dhbwenterprise20_Filter")
-response = session.body()
+session.visit("https://www.karlsruhe.dhbw.de/inf/duale-partner-finden.html?tx_dhbwenterprise20_pi1%5Baction%5D=index&tx_dhbwenterprise20_pi1%5Bcontroller%5D=Job&cHash=a40e347542d46be5990f646bb347cceb#tx_dhbwenterprise20_Filter")
+Input = session.at_xpath('//*[@name="email"]') #for find input
+Input.set('<input value>')
+Input.form().submit() #for submit
+time.sleep(5) #response = session.body()
 soup = BeautifulSoup(response)
-print soup.prettify()
-table = soup.find_all(lambda tag: tag.name=='table' and tag.has_key('id') and tag['id']=="NavDHBWEnterpriseTableEntries")
-#rows = table.findAll(lambda tag: tag.name == 'tr')
 
-#for company in rows:
-#	print company
+session.render("dhbw.png")
+
+table = soup.find_all(lambda tag: tag.name=='table' and tag.has_key('id') and tag['id']=="NavDHBWEnterpriseTableEntries")
+
 print table
 
 ws.set_row(0, 24)
