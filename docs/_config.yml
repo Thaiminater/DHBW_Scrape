@@ -1,9 +1,9 @@
 encoding: UTF-8
 # Site settings
-title: Thomas Schühly
+title: Thomas Sch&uuml;hly
 description: My Portfolio
-baseurl: "/" 
-url: "thaiminater.github.io/DHBW_Scrape/" # 
+baseurl: "/"
+url: "thaiminater.github.io/DHBW_Scrape/" #
 
 # User settings
 username: Thomas Sch$uuml;hly
