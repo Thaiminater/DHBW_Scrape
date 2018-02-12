@@ -6,7 +6,7 @@ baseurl: "/"
 url: "thaiminater.github.io/DHBW_Scrape/" #
 
 # User settings
-username: Thomas Sch$uuml;hly
+username: Thomas Sch&uuml;hly
 email: thomas.schuehly@outlook.com
 
 # Google-analytics
