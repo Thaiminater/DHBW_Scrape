@@ -3,6 +3,6 @@ The purpose of this script is to get all relevant information about the DHBW Com
 
 ### Maps
 
-The maps are currently hosted at https://thaiminater.github.io/DHBW_Scrape/
+The maps are currently hosted at https://tschuehly.github.io/DHBW_Scrape/
 
 &#169; Thomas Schühly
