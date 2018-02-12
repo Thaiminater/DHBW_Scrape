@@ -5,6 +5,5 @@ node_modules
 .vs
 *.sln
 *.pyproj
-*.xlsx
 *.png
 *.lock
