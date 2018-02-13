@@ -7,12 +7,12 @@ import time
 import xlsxwriter
 import pdb
 
-workbook = xlsxwriter.Workbook('loerrach.xlsx')
+workbook = xlsxwriter.Workbook('loerrach.xlsx') #Create Excel File
 ws = workbook.add_worksheet()
 dryscrape.start_xvfb()									# Start dryscrape session
 session = dryscrape.Session()
 
-session.visit("https://www.dhbw-loerrach.de/informatik-duale-partner.html?no_cache=1")
+session.visit("https://www.dhbw-loerrach.de/informatik-duale-partner.html?no_cache=1") #Visit DHBW Site
 response = session.body()
 soup = BeautifulSoup(response)
 
@@ -36,9 +36,12 @@ ws.write(0,4,'Kontaktperson')
 ws.write(0,5,'Kontaktemail')
 ws.write(0,6,'Homepage')
 ws.write(0,7,'Telefonnummer')
+ws.write(0,9,'Kununu Seite')
 row = 0
 col = 0
 for company in soup.find_all("div", class_="company_set"):
+	kununuUrl = ""
+	name =""
 	ws.set_row(row, 50)
 	#print (company.prettify())
 	for addr in company.find_all("td", class_="company_addr"):
@@ -49,14 +52,24 @@ for company in soup.find_all("div", class_="company_set"):
 			namelist.append(" ")
 		name = "".join(namelist)
 		ws.write(row,0,name)
+		print name
+		linkname = re.sub(" ","%20",name)
+		kununuUrl = "https://www.kununu.com/de/search#/?q=" + linkname
 		addresslist = []
 		for addrstring in addr.p.stripped_strings:
 			addresslist.append(addrstring)
 			addresslist.append(" ")
+			country = ""
+			if addrstring.startswith("CH"):
+				country = "&country=COUNTRY_CH"
+			if addrstring.startswith("DE"):
+				country = "&country=COUNTRY_DE"
+			kununuUrl = kununuUrl + country
+
 		address = "".join(addresslist)
 		print address
 		ws.write(row,1,address)
-	
+
 	for note in company.find_all("td", class_="company_note"):
 		#print (td.prettify())
 		notelist = []
@@ -107,9 +120,20 @@ for company in soup.find_all("div", class_="company_set"):
 	for state in company.find_all("td", has_colspan, class_="company_tl"):
 		statestr = state.img['title']
 		ws.write(row,8,statestr)
+
+
+
+	session.visit(kununuUrl) #Visit Kununu
+	response = session.body()
+	soup = BeautifulSoup(response)
+	companyurl = ""
+	for kuCompany in soup.find_all("ku-company"):
+		acontainter = soup.find("div",class_="panel-mast")
+		companyurl = "https://www.kununu.com" + acontainter.a.get('href')+ "/kommentare"
+	print companyurl
+	ws.write(row,9,companyurl)
+
 	print ("\n")
 	row += 1
 ws.set_row(0, 19)
 workbook.close()
-		
-			

@@ -7,3 +7,4 @@ node_modules
 *.pyproj
 *.png
 *.lock
+.remote-sync.json
