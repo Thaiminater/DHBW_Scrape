@@ -8,6 +8,7 @@ import time
 import xlsxwriter
 import pdb
 import pprint
+import json
 workbook = xlsxwriter.Workbook('loerrach.xlsx') #Create Excel File
 ws = workbook.add_worksheet()
 dryscrape.start_xvfb()									# Start dryscrape session
@@ -40,35 +41,44 @@ ws.write(0,9,'Kununu Seite')
 row = 0
 col = 0
 
-def kununu(url):
-	session = dryscrape.Session()
+def kununu(url,row):
+	try:
+		url = str(url)
+	except:
+		print "Umlaut enthalten"
+		return
+	print "Kununu Website besuchen"
 	session.visit(url)
+	time.sleep(1)
 	response = session.body()
 	soup2 = BeautifulSoup(response)
-	print kununuUrl
+	print url
 	selectdic = {}
 	index = 0
 	for kuCompany in soup2.find_all("ku-company"):
 		companyurl = ""
-		acontainer = kuCompany.find("div",class_="panel-body")
-		companyurl = "https://www.kununu.com" + acontainer.h2.a['href']+ "/kommentare"
+		acontainer = kuCompany.find("h2")
+		companyurl = "https://www.kununu.com" + acontainer.a['href']+ "/kommentare"
 		selectdic["{0}".format(index)] = companyurl
 		index += 1
-		#ws.write(row,9,companyurl)
 	if row > 0 :
-		if '1' in selectdic:
-			print pprint.pprint(selectdic)
-			selectindex = input("Select the company.")
-			print selectdic[unicode(selectindex)]
-			print ("\n")
-		elif '0' in selectdic:
-			ws.write(row,9,selectdic["0"])
-			print selectdic["0"]
-			
+		if '0' in selectdic:
+			tempstr = selectdic["0"]
+			ws.write(row,9,tempstr)
+		elif not selectdic:
+			ws.write(row,9,url)
+		else:
+			print selectdic
+			output = json.dumps(selectdic)
+			ws.write(row,9,output)
+		#ws.write(row,9,companyurl)
+	return
+
 for company in soup.find_all("div", class_="company_set"):
 	kununuUrl = ""
 	name =""
 	ws.set_row(row, 50)
+	kunbool = False
 	#print (company.prettify())
 	for addr in company.find_all("td", class_="company_addr"):
 		#print (td.prettify())
@@ -79,15 +89,9 @@ for company in soup.find_all("div", class_="company_set"):
 		name = "".join(namelist)
 		ws.write(row,0,name)
 		print name
-		lname = name.lower()
-		oe = u'ö'
-		ue = u'ü'
-		ae = u'ä'
-		kunbool = False
 		linkname = re.sub(" ","%20",name)
 		kununuUrl = "https://www.kununu.com/de/search#/?q=" + linkname
-		if oe not in lname or ue not in lname or ae not in lname:
-			kunbool = True
+
 
 		addresslist = []
 		for addrstring in addr.p.stripped_strings:
@@ -99,9 +103,8 @@ for company in soup.find_all("div", class_="company_set"):
 				country = "&country=COUNTRY_CH"
 			if addrstring.startswith("DE"):
 				country = "&country=COUNTRY_DE"
-			if kunbool:
-				kununuUrl = kununuUrl + country
-				kununu(kununuUrl)
+			kununuUrl = kununuUrl + country
+
 		address = "".join(addresslist)
 		print address
 		ws.write(row,1,address)
@@ -156,7 +159,7 @@ for company in soup.find_all("div", class_="company_set"):
 	for state in company.find_all("td", has_colspan, class_="company_tl"):
 		statestr = state.img['title']
 		ws.write(row,8,statestr)
-
+	kununu(kununuUrl,row)
 	row += 1
 ws.set_row(0, 19)
 workbook.close()
