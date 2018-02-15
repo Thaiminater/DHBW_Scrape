@@ -1,3 +1,4 @@
+#!/usr/bin/env python # -*- coding: UTF-8 -*-
 import dryscrape
 from bs4 import BeautifulSoup
 import re
@@ -6,12 +7,11 @@ import json
 import time
 import xlsxwriter
 import pdb
-
+import pprint
 workbook = xlsxwriter.Workbook('loerrach.xlsx') #Create Excel File
 ws = workbook.add_worksheet()
 dryscrape.start_xvfb()									# Start dryscrape session
 session = dryscrape.Session()
-
 session.visit("https://www.dhbw-loerrach.de/informatik-duale-partner.html?no_cache=1") #Visit DHBW Site
 response = session.body()
 soup = BeautifulSoup(response)
@@ -39,6 +39,32 @@ ws.write(0,7,'Telefonnummer')
 ws.write(0,9,'Kununu Seite')
 row = 0
 col = 0
+
+def kununu(url):
+	session = dryscrape.Session()
+	session.visit(url)
+	response = session.body()
+	soup2 = BeautifulSoup(response)
+	print kununuUrl
+	selectdic = {}
+	index = 0
+	for kuCompany in soup2.find_all("ku-company"):
+		companyurl = ""
+		acontainer = kuCompany.find("div",class_="panel-body")
+		companyurl = "https://www.kununu.com" + acontainer.h2.a['href']+ "/kommentare"
+		selectdic["{0}".format(index)] = companyurl
+		index += 1
+		#ws.write(row,9,companyurl)
+	if row > 0 :
+		if '1' in selectdic:
+			print pprint.pprint(selectdic)
+			selectindex = input("Select the company.")
+			print selectdic[unicode(selectindex)]
+			print ("\n")
+		elif '0' in selectdic:
+			ws.write(row,9,selectdic["0"])
+			print selectdic["0"]
+			
 for company in soup.find_all("div", class_="company_set"):
 	kununuUrl = ""
 	name =""
@@ -53,19 +79,29 @@ for company in soup.find_all("div", class_="company_set"):
 		name = "".join(namelist)
 		ws.write(row,0,name)
 		print name
+		lname = name.lower()
+		oe = u'ö'
+		ue = u'ü'
+		ae = u'ä'
+		kunbool = False
 		linkname = re.sub(" ","%20",name)
 		kununuUrl = "https://www.kununu.com/de/search#/?q=" + linkname
+		if oe not in lname or ue not in lname or ae not in lname:
+			kunbool = True
+
 		addresslist = []
 		for addrstring in addr.p.stripped_strings:
 			addresslist.append(addrstring)
 			addresslist.append(" ")
 			country = ""
+			location = ""
 			if addrstring.startswith("CH"):
 				country = "&country=COUNTRY_CH"
 			if addrstring.startswith("DE"):
 				country = "&country=COUNTRY_DE"
-			kununuUrl = kununuUrl + country
-
+			if kunbool:
+				kununuUrl = kununuUrl + country
+				kununu(kununuUrl)
 		address = "".join(addresslist)
 		print address
 		ws.write(row,1,address)
@@ -121,19 +157,6 @@ for company in soup.find_all("div", class_="company_set"):
 		statestr = state.img['title']
 		ws.write(row,8,statestr)
 
-
-
-	session.visit(kununuUrl) #Visit Kununu
-	response = session.body()
-	soup = BeautifulSoup(response)
-	companyurl = ""
-	for kuCompany in soup.find_all("ku-company"):
-		acontainter = soup.find("div",class_="panel-mast")
-		companyurl = "https://www.kununu.com" + acontainter.a.get('href')+ "/kommentare"
-	print companyurl
-	ws.write(row,9,companyurl)
-
-	print ("\n")
 	row += 1
 ws.set_row(0, 19)
 workbook.close()
