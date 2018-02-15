@@ -6,24 +6,30 @@ import json
 import time
 import xlsxwriter
 import pdb
-
-workbook = xlsxwriter.Workbook('karlsruhe.xlsx')
-ws = workbook.add_worksheet()
 dryscrape.start_xvfb()									# Start dryscrape session
 session = dryscrape.Session()
 
-session.visit("https://www.karlsruhe.dhbw.de/inf/duale-partner-finden.html?tx_dhbwenterprise20_pi1%5Baction%5D=index&tx_dhbwenterprise20_pi1%5Bcontroller%5D=Job&cHash=a40e347542d46be5990f646bb347cceb#tx_dhbwenterprise20_Filter")
-Input = session.at_xpath('//*[@name="email"]') #for find input
-Input.set('<input value>')
-Input.form().submit() #for submit
-time.sleep(5) #response = session.body()
-soup = BeautifulSoup(response)
+workbook = xlsxwriter.Workbook('karlsruhe.xlsx')
+ws = workbook.add_worksheet()
 
-session.render("dhbw.png")
+with open("dhbw_karlsruhe_2018.html") as response:
+	soup = BeautifulSoup(response)
 
-table = soup.find_all(lambda tag: tag.name=='table' and tag.has_key('id') and tag['id']=="NavDHBWEnterpriseTableEntries")
-
-print table
+for company in soup.find_all("tr",class_="googleMapsCoordinates",limit = 2):
+	for link in company.find_all('a'):
+		print link.string
+		dhbwlink = "https://www.karlsruhe.dhbw.de" + link.get('href')
+		print dhbwlink
+	for td in company.find('td',class_='free-places'):
+		state = td.string
+		state = state.strip()
+		print state
+	print "visit dhbw"
+	session.visit(dhbwlink) #Visit DHBW Site
+	response = session.body()
+	compsoup = BeautifulSoup(response)
+	compsoup = compsoup.find('div', id="onziboe")
+	print compsoup.prettify()
 
 ws.set_row(0, 24)
 ws.set_column(0,0,35)
@@ -48,5 +54,3 @@ col = 0
 
 ws.set_row(0, 19)
 workbook.close()
-		
-			
