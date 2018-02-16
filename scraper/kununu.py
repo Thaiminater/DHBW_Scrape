@@ -1,0 +1,46 @@
+import re
+import time
+import dryscrape
+from bs4 import BeautifulSoup
+import re
+import sys
+import json
+import time
+import xlsxwriter
+
+def kununu(session,ws,name,row,col):
+	try:
+		name = str(name)
+	except:
+		print "Umlaut enthalten"
+		return
+	print "Visit Kununu Website besuchen"
+	name = re.sub(" ","%20",name)
+	url = "https://www.kununu.com/de/search#/?q=" + name
+	session.visit(url)
+	time.sleep(1)
+	response = session.body()
+
+	soup2 = BeautifulSoup(response)
+	print url
+	selectdic = {}
+	index = 0
+	for kuCompany in soup2.find_all("ku-company"):
+		companyurl = ""
+		acontainer = kuCompany.find("h2")
+		companyurl = "https://www.kununu.com" + acontainer.a['href']+ "/kommentare"
+		selectdic["{0}".format(index)] = companyurl
+		index += 1
+	print selectdic
+	if row > 0 :
+		if '0' in selectdic:
+			tempstr = selectdic["0"]
+			ws.write_url(row,col,tempstr,string='Kununu')
+		elif not selectdic:
+			ws.write(row,col,url)
+		else:
+			output = json.dumps(selectdic)
+			ws.write(row,col,output)
+		#ws.write(row,6,companyurl)
+
+	return
