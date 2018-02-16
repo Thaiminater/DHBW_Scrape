@@ -47,7 +47,7 @@ def kununu(url,row):
 	except:
 		print "Umlaut enthalten"
 		return
-	print "Kununu Website besuchen"
+	print "Visit Kununuu website"
 	session.visit(url)
 	time.sleep(1)
 	response = session.body()
