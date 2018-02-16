@@ -1,5 +1,6 @@
 import dryscrape
 from bs4 import BeautifulSoup
+from kununu import kununu
 import re
 import sys
 import json
@@ -32,55 +33,19 @@ ws.write(0,6,'Kununu')
 ws.write(0,7,'Status')
 ws.write(0,8,'Maps')
 row = 1
-col = 0
 
 name = ''
 
 with open("dhbw_karlsruhe_2018.html") as response:
 	soup = BeautifulSoup(response)
 
-def kununu(url,row,name):
-	try:
-		url = str(url)
-	except:
-		print "Umlaut enthalten"
-		return
-	print "Visit Kununu Website besuchen"
-	session.visit(url)
-	time.sleep(1)
-	response = session.body()
 
-	soup2 = BeautifulSoup(response)
-	print url
-	selectdic = {}
-	index = 0
-	for kuCompany in soup2.find_all("ku-company"):
-		companyurl = ""
-		acontainer = kuCompany.find("h2")
-		companyurl = "https://www.kununu.com" + acontainer.a['href']+ "/kommentare"
-		selectdic["{0}".format(index)] = companyurl
-		index += 1
-	print selectdic
-	if row > 0 :
-		if '0' in selectdic:
-			tempstr = selectdic["0"]
-			ws.write_url(row,6,tempstr,string='Kununu')
-		elif not selectdic:
-			ws.write(row,6,url)
-		else:
-			output = json.dumps(selectdic)
-			ws.write(row,6,output)
-		#ws.write(row,6,companyurl)
-
-	return
 
 for company in soup.find_all("tr",class_="googleMapsCoordinates"):
 	print row
 	for link in company.find_all('a'):
 		dhbwlink = "https://www.karlsruhe.dhbw.de" + link.get('href')
 		name = link.string
-		linkname = re.sub(" ","%20",name)
-		kununuUrl = "https://www.kununu.com/de/search#/?q=" + linkname
 		print name
 		ws.write_url(row,5,dhbwlink,string='DHBW')
 	for td in company.find('td',class_='free-places'):
@@ -160,7 +125,7 @@ for company in soup.find_all("tr",class_="googleMapsCoordinates"):
 	# 	temptext = text.text
 	# 	temptext = temptext.strip()
 	# 	print temptext
-	kununu(kununuUrl,row,name)
+	kununu(session,ws,kununuUrl,row,6)
 	row += 1
 ws.set_row(0, 19)
 workbook.close()
