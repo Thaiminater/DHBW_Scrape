@@ -7,8 +7,7 @@ import json
 import time
 import xlsxwriter
 import pdb
-import pprint
-import json
+from kununu import kununu
 workbook = xlsxwriter.Workbook('loerrach.xlsx') #Create Excel File
 ws = workbook.add_worksheet()
 dryscrape.start_xvfb()									# Start dryscrape session
@@ -21,13 +20,13 @@ def has_colspan(tag):
     return tag.has_attr('colspan')
 ws.set_row(0, 24)
 ws.set_column(0,0,35)
-ws.set_column(1,2,40)
+ws.set_column(1,1,20)
+ws.set_column(2,2,40)
 ws.set_column(3,3,40)
 ws.set_column(4,4,22)
 ws.set_column(5,5,20)
-ws.set_column(6,6,40)
-ws.set_column(7,7,17)
-ws.set_column(8,8,25)
+ws.set_column(6,6,17)
+ws.set_column(7,7,25)
 
 ws.write(0,0,'Firmenname')
 ws.write(0,1,'Adresse')
@@ -35,50 +34,17 @@ ws.write(0,2,'Bemerkung')
 ws.write(0,3,'Website mit Infos')
 ws.write(0,4,'Kontaktperson')
 ws.write(0,5,'Kontaktemail')
-ws.write(0,6,'Homepage')
-ws.write(0,7,'Telefonnummer')
-ws.write(0,9,'Kununu Seite')
+ws.write(0,6,'Telefonnummer')
+ws.write(0,7,'Kununu Seite')
 row = 0
 col = 0
 
-def kununu(url,row):
-	try:
-		url = str(url)
-	except:
-		print "Umlaut enthalten"
-		return
-	print "Visit Kununuu website"
-	session.visit(url)
-	time.sleep(1)
-	response = session.body()
-	soup2 = BeautifulSoup(response)
-	print url
-	selectdic = {}
-	index = 0
-	for kuCompany in soup2.find_all("ku-company"):
-		companyurl = ""
-		acontainer = kuCompany.find("h2")
-		companyurl = "https://www.kununu.com" + acontainer.a['href']+ "/kommentare"
-		selectdic["{0}".format(index)] = companyurl
-		index += 1
-	if row > 0 :
-		if '0' in selectdic:
-			tempstr = selectdic["0"]
-			ws.write(row,9,tempstr)
-		elif not selectdic:
-			ws.write(row,9,url)
-		else:
-			print selectdic
-			output = json.dumps(selectdic)
-			ws.write(row,9,output)
-		#ws.write(row,9,companyurl)
-	return
 
 for company in soup.find_all("div", class_="company_set"):
-	kununuUrl = ""
-	name =""
+	companyname =""
 	ws.set_row(row, 50)
 	kunbool = False
+	country = ''
 	#print (company.prettify())
 	for addr in company.find_all("td", class_="company_addr"):
 		#print (td.prettify())
@@ -86,12 +52,9 @@ for company in soup.find_all("div", class_="company_set"):
 		for namestring in addr.h3.stripped_strings:
 			namelist.append(namestring)
 			namelist.append(" ")
-		name = "".join(namelist)
-		ws.write(row,0,name)
-		print name
-		linkname = re.sub(" ","%20",name)
-		kununuUrl = "https://www.kununu.com/de/search#/?q=" + linkname
-
+		companyname = "".join(namelist)
+		print companyname
+		ws.write(row,0,companyname)
 
 		addresslist = []
 		for addrstring in addr.p.stripped_strings:
@@ -103,7 +66,7 @@ for company in soup.find_all("div", class_="company_set"):
 				country = "&country=COUNTRY_CH"
 			if addrstring.startswith("DE"):
 				country = "&country=COUNTRY_DE"
-			kununuUrl = kununuUrl + country
+
 
 		address = "".join(addresslist)
 		print address
@@ -141,25 +104,32 @@ for company in soup.find_all("div", class_="company_set"):
 		#	print ('Kontaktname: ' + string)
 		#pdb.set_trace()
 		for link in cnt.find_all("a"):
+			nolink = True
+			hplink = False
 			if re.search("document.write",link.text) != None :
 				b_string = unicode(link.text)
 				b_string = b_string.replace('document.write(\'&#64;\');','')
 				ws.write(row,5,b_string)
 				print b_string
 			link = link.get('href')
-			if re.search("www", link) != None :
-				ws.write_url(row,6,link)
-				print link
-
+			if 'www' in link:
+				hplink = True
+				nolink = False
+				ws.write_url(row,0,link,string = companyname)
+			# if hplink == False:
+			# 	ws.write(row,0,companyname)
+			# 	print link
+			# if nolink == True:
+			# 	ws.write(row,0,companyname)
 	for num in company.find_all("td", has_colspan, class_="company_contact"):
 		if num.p.string != None:
-			ws.write(row,7,num.p.string)
+			ws.write(row,6,num.p.string)
 			print num.p.string
 
 	for state in company.find_all("td", has_colspan, class_="company_tl"):
 		statestr = state.img['title']
-		ws.write(row,8,statestr)
-	kununu(kununuUrl,row)
+		ws.write(row,7,statestr)
+	kununu(session,ws,companyname,row,8,country)
 	row += 1
 ws.set_row(0, 19)
 workbook.close()

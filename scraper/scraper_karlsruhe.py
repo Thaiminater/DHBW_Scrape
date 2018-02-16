@@ -125,7 +125,7 @@ for company in soup.find_all("tr",class_="googleMapsCoordinates"):
 	# 	temptext = text.text
 	# 	temptext = temptext.strip()
 	# 	print temptext
-	kununu(session,ws,kununuUrl,row,6)
+	kununu(session,ws,name,row,6,"&country=COUNTRY_DE")
 	row += 1
 ws.set_row(0, 19)
 workbook.close()

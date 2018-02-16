@@ -18,12 +18,13 @@ ws.set_column(0,0,35)
 ws.set_column(1,1,40)
 ws.set_column(2,2,22)
 ws.set_column(3,3,33)
+ws.set_column(4,20,45)
 
 ws.write(0,0,'Firmenname')
 ws.write(0,1,'Adresse')
 ws.write(0,2,'Kontaktperson')
 ws.write(0,3,'Kontakt')
-
+ws.write(0,4,'Kununu')
 
 session.visit("https://www.dhbw-mannheim.de/duales-studium/duale-partner-suchen.html") #Visit DHBW Site
 showfree = session.at_xpath('//*[@id="onlyFree"]')		#get the html to analyse
@@ -43,8 +44,8 @@ response = session.body()
 soup = BeautifulSoup(response)
 soup = soup.find('table',class_="contenttable list-by-course")
 row = 1
-for comp in soup.find_all('td',class_="company", limit = 2):
-
+for comp in soup.find_all('td',class_="company"):
+	print row
 	xpath = '//*[@id="onziboe"]/div[1]/div[3]/div[2]/table[1]/tbody/tr[{0}]/td[1]/span[1]/a'.format(row)
 	company = session.at_xpath(xpath)
 	company.click()
@@ -61,22 +62,35 @@ for comp in soup.find_all('td',class_="company", limit = 2):
 	print address.text
 	web = infotable.find('td',class_='www')
 	if web != None:
-		ws.write_url(row,0,web.a.get('href'),string=name)
+		try:
+			ws.write_url(row,0,web.a.get('href'),string=name)
+			print web.a.get('href')
+		except:
+			ws.write(row,0,name)
 	else:
 		ws.write(row,0,name)
-	print web.a.get('href')
 	cntinfo = infsoup.find('span',class_='contact')
-	cntname = cntinfo.find('span',class_='name')
-	ws.write(row,2,cntname.text)
-	print cntname.text
-	mail = cntinfo.find('span',class_='mail')
-	ws.write(row,3,mail.text)
-	print mail.text
+	#print cntinfo
+	cntname = None
+	mail = None
+	if cntinfo != None:
+		cntname = cntinfo.find('span',class_='name')
+		mail = cntinfo.find('span',class_='mail')
+
+	#print cntname
+	#print type(cntname)
+	if cntname != None:
+		ws.write(row,2,cntname.text)
+		print cntname.text
+	if mail != None:
+		ws.write(row,3,mail.text)
+		print mail.text
 	#print infotable.prettify()
 	zurueck = session.at_xpath('//*[@id="onziboe"]/div[1]/div[4]/div/a')
 	zurueck.click()
+	kununu(session2,ws,name,row,4,"&country=COUNTRY_DE")
 	row += 1
-	kununu(session2,ws,name,row,4)
+
 
 #session.render("mannheim.png")
 workbook.close()
