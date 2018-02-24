@@ -65,6 +65,7 @@ for comp in soup.find_all('td',class_="company"):
 		try:
 			ws.write_url(row,0,web.a.get('href'),string=name)
 			print web.a.get('href')
+			#ws.write(row,5,web.a.get('href'))
 		except:
 			ws.write(row,0,name)
 	else:

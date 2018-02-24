@@ -23,7 +23,6 @@ def kununu(session,ws,name,row,col,country):
 		response = session.body()
 
 		soup2 = BeautifulSoup(response)
-		print url
 		selectdic = {}
 		index = 0
 		for kuCompany in soup2.find_all("ku-company"):
@@ -32,13 +31,14 @@ def kununu(session,ws,name,row,col,country):
 			companyurl = "https://www.kununu.com" + acontainer.a['href']+ "/kommentare"
 			selectdic[index] = companyurl
 			index += 1
-		print selectdic
 
 		if 1 not in selectdic and 0 in selectdic:
 			tempstr = selectdic[0]
 			ws.write_url(row,col,tempstr,string='Kununu')
+			print tempstr
 		else:
 			ws.write_url(row,col,url,string='Kununu search')
+			print url
 		#ws.write(row,6,companyurl)
 
 	return
