@@ -14,7 +14,7 @@ dryscrape.start_xvfb()									# Start dryscrape session
 session = dryscrape.Session()
 session.visit("https://www.dhbw-loerrach.de/informatik-duale-partner.html?no_cache=1") #Visit DHBW Site
 response = session.body()
-soup = BeautifulSoup(response)
+soup = BeautifulSoup(response,"lxml")
 
 def has_colspan(tag):
     return tag.has_attr('colspan')

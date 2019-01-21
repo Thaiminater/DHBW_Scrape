@@ -22,7 +22,7 @@ def kununu(session,ws,name,row,col,country):
 		time.sleep(1)
 		response = session.body()
 
-		soup2 = BeautifulSoup(response)
+		soup2 = BeautifulSoup(response,"lxml")
 		selectdic = {}
 		index = 0
 		for kuCompany in soup2.find_all("ku-company"):

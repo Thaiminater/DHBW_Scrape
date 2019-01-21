@@ -37,7 +37,7 @@ row = 1
 name = ''
 
 with open("dhbw_karlsruhe_2018.html") as response:
-	soup = BeautifulSoup(response)
+	soup = BeautifulSoup(response,"lxml")
 
 
 

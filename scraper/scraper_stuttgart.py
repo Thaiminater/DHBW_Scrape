@@ -14,7 +14,7 @@ dryscrape.start_xvfb()									# Start dryscrape session
 session = dryscrape.Session()
 session.visit("https://www.dhbw-stuttgart.de/themen/internationales/internationale-studiengaenge/informatik/duale-partner/?tx_cronbafirmen_pi%5Boffset%5D=0&cHash=99f439f6a246d843d3a32e86bb8b32ca") #Visit DHBW Site
 response = session.body()
-soup = BeautifulSoup(response)
+soup = BeautifulSoup(response,"lxml")
 
 def has_colspan(tag):
     return tag.has_attr('colspan')
@@ -63,7 +63,7 @@ for company in soup.find_all("tr"):
 		dhbwlink = 'https://www.dhbw-stuttgart.de' + internallink
 		session.visit(dhbwlink)
 		response = session.body()
-		soup2 = BeautifulSoup(response)
+		soup2 = BeautifulSoup(response,"lxml")
 		for iTable in soup2.find_all('table', class_= 'table table-responsive-html5'):
 			for tr in iTable.find_all('tr'):
 				for intcourse in tr.find_all("td", attrs={"data-title": "Studiengang/Studienrichtung"}):
@@ -105,7 +105,7 @@ for company in soup.find_all("tr"):
 						notetxt = note.get_text()
 						ws.write(row,2,notetxt)
 						print notetxt
-					#kununu(session,ws,name,row,7,"&country=COUNTRY_DE")
+					kununu(session,ws,name,row,7,"&country=COUNTRY_DE")
 		row += 1
 	#kununu(session,ws,companyname,row,8,country)
 

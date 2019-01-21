@@ -41,7 +41,7 @@ num.click()
 time.sleep(2)
 
 response = session.body()
-soup = BeautifulSoup(response)
+soup = BeautifulSoup(response,"lxml")
 soup = soup.find('table',class_="contenttable list-by-course")
 row = 1
 for comp in soup.find_all('td',class_="company"):
