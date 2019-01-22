@@ -8,3 +8,4 @@ node_modules
 *.png
 *.lock
 .remote-sync.json
+*.xlsx
